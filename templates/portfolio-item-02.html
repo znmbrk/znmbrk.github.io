@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,900|Source+Sans+Pro:300,900&display=swap" rel="stylesheet">
+    <title>Zain's Portfolio</title>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="../static/images/Mobarik_Zain_Univeristy of Warwick.jpg" alt="" class="logo__img">
+        </div>
+
+        <button class="nav-toggle" aria-label="toggle navigation">
+            <span class="hamburger"></span>
+        </button>
+
+        <nav class="nav">
+            <ul class="nav__list">
+                <li class="nav__items"><a href="home.html" class="nav__link">Home</a></li>
+                <li class="nav__items"><a href="home.html#goals" class="nav__link">My Aspirations</a></li>
+                <li class="nav__items"><a href="home.html#about" class="nav__link">About Me</a></li>
+                <li class="nav__items"><a href="home.html#work" class="nav__link">My Work</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Introduction -->
+    <section class="intro">
+        <h1 class="section__title section__title--intro"><strong>Bill Split - Split that bill!</strong></h1>
+        <p class="section__subtitle section__subtitle--intro">Website for users to split bills within groups.</p>
+        <img src="../static/images/port-02.png" alt="Bill Split" class="intro__img">
+    </section>
+
+    <div class="portfolio-item-individual">
+        <h3 class="portfolio-item-individual__title">Project Explanation</h3>
+        <img src="../static/images/aspirations-01.jpeg" alt="Generic Coding Image">
+        <p>Utilised Python’s Flask Framework and SQL Alchemy for the database for my website to split bills between users. Mainly for university students who live in the same house to create an account and split a given bill between each housemate.</p>
+        <p>Used JavaScript’s JQuery and AJAX Frameworks to add and delete bills without having to refresh the page.</p>
+        <h4 class="portfolio-item-individual__title portfolio-item-individual__subtitle">Cool Features!</h4>
+        <p><strong>Recent transaction history displaying the last 5 transactions.</strong> <br> When the user has logged into their account, I iterate through all the completed transactions to do with them and get the last 5 transactions from the database. The last 5 will be the 5 most recent transactions,</p>
+        <p><strong>Ability to split bill unevenly using a share percentage that has to add up to 100 percent.</strong><br>I have added the ability to unevenly share the bill using percentages. I have implemented an error check to make sure the percentages add up to 100. I get all the percentages from the form of all the payers and calculate how much of the total they have to pay.</p>
+        <p><strong>Flash messages of when someone has completed a bill.</strong><br>Along with having flash messages for when someone sends a new bill, I also have flash messages for when someone has paid their portion of the bill. I have an attribute in my "Share" class called "senderEmail" which is the email of the person that sent the bill. I terate through all the people that need to pay a bill from the "Share" class and see if the logged in user sent any bills. For all the bills the logged in user has sent off, I check to see if any of them are completed using the "complete" boolean attribute. For all completed bills, I check to see if the user knows if they are completed or not using the "dateTime" function and the boolean attribute "checkPaid". If the time the bill was sent was before the user last logged in and "checkPaid" is False, I flash a new message of someone comoleting their bill.</p>
+        <p><strong>Adding multiple housemates and certain members to split bills differently with.</strong><br>Following up on the dynamic percentages point, I also have the ability to keep adding multiple housemates to the same bill in one go. I used JQuery's HTML.append() function to keep adding rows of the form when the user clicks "add housemate". The tricky bit was to keep the title of the bill fixed on what the user picked for the first housemate so that they all get charged for the same bill. Furthermore, it was important to keep the total the same so that all the money calculations are consistent. I managed to do both these things. In my "cwk.py" file, I had to use "getlist()" for all the form input fields as now I was potentially dealing with multiple entries. Moreover, I had to "zip()" the contents of the form so that I get all the data from all the fields person by person instead of category by category. This is how I executed this feature.</p>
+        <p><strong>Used Ajax for the update and delete button and to add housemates.</strong><br>My final additional feature was using Ajax for the "Update" and "Delete" buttons. For both functions in my ".js" file, I used the "$.post()" method to send off the relevant data to my Flask file instead of having to refresh the page for the flask file to get the new information. To actually make the changes, I simply get the ID of the parts I am dealing with and update their HTML using JQuery.</p>
+        <h4 class="portfolio-item-individual__title portfolio-item-individual__subtitle">Here is a demo of my project!</h4>
+        <video src="../static/mp4s/demo.mp4" width="100%" height="600px">
+    </div>
+
+    <footer class="footer">
+        <a href="mailto:zainmobarik03@gmail.com" class="footer__link">zainmobarik03@gmail.com</a>
+        <ul class="social-list">
+            <li class="social-list__item"><a class="social-list__link" href="https://www.instagram.com/zain.mbrk/"><i class="fa-brands fa-instagram-square"></i></a></li>
+            <li class="social-list__item"><a class="social-list__link" href="https://github.com/znmbrk"><i class="fa-brands fa-github"></i></a></li>
+            <li class="social-list__item"><a class="social-list__link" href="https://www.youtube.com/channel/UCd4ZMTocC28QEfYPOOvA05Q"><i class="fa-brands fa-youtube"></i></a></li>
+            <li class="social-list__item"><a class="social-list__link" href="https://www.linkedin.com/in/zainmobarik/"><i class="fa-brands fa-linkedin"></i></a></li>
+        </ul>
+    </footer>
+
+    <script src="../static/js/index.js"></script>
+
+</body>
+</html>
