@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css" integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro:400,900|Source+Sans+Pro:300,900&display=swap" rel="stylesheet">
+    <title>Zain's Portfolio</title>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="../static/images/Mobarik_Zain_Univeristy of Warwick.jpg" alt="" class="logo__img">
+        </div>
+
+        <button class="nav-toggle" aria-label="toggle navigation">
+            <span class="hamburger"></span>
+        </button>
+
+        <nav class="nav">
+            <ul class="nav__list">
+                <li class="nav__items"><a href="home.html" class="nav__link">Home</a></li>
+                <li class="nav__items"><a href="home.html#goals" class="nav__link">My Aspirations</a></li>
+                <li class="nav__items"><a href="home.html#about" class="nav__link">About Me</a></li>
+                <li class="nav__items"><a href="home.html#work" class="nav__link">My Work</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Introduction -->
+    <section class="intro">
+        <h1 class="section__title section__title--intro"><strong>Ancient Combat</strong></h1>
+        <p class="section__subtitle section__subtitle--intro">Street Fighter Game in Python.</p>
+        <img src="../static/images/port-01.png" alt="Ancient Combat" class="intro__img">
+    </section>
+
+    <div class="portfolio-item-individual">
+        <h3 class="portfolio-item-individual__title">Project Explanation</h3>
+        <img src="../static/images/aspirations-01.jpeg" alt="Generic Coding Image">
+        <p>Developed a street-fighter game in Python using Object-Oriented Programming and the Pygame library.</p>
+        <p>I created a database in SQL to log the user’s scores and display the top 5 on the leaderboard. This involved thinking about collision detections and reality-based projectile motion as well as using AI to underpin game difficulty and progression.</p>
+        <h4 class="portfolio-item-individual__title portfolio-item-individual__subtitle">Here is my full project write-up!</h4>
+        <embed src="../static/pdfs/game.pdf" type="application/pdf" width="100%" height="600px">
+    </div>
+
+    <footer class="footer">
+        <a href="mailto:zainmobarik03@gmail.com" class="footer__link">zainmobarik03@gmail.com</a>
+        <ul class="social-list">
+            <li class="social-list__item"><a class="social-list__link" href="https://www.instagram.com/zain.mbrk/"><i class="fa-brands fa-instagram-square"></i></a></li>
+            <li class="social-list__item"><a class="social-list__link" href="https://github.com/znmbrk"><i class="fa-brands fa-github"></i></a></li>
+            <li class="social-list__item"><a class="social-list__link" href="https://www.youtube.com/channel/UCd4ZMTocC28QEfYPOOvA05Q"><i class="fa-brands fa-youtube"></i></a></li>
+            <li class="social-list__item"><a class="social-list__link" href="https://www.linkedin.com/in/zainmobarik/"><i class="fa-brands fa-linkedin"></i></a></li>
+        </ul>
+    </footer>
+
+    <script src="../static/js/index.js"></script>
+
+</body>
+</html>
