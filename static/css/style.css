@@ -361,6 +361,8 @@ header {
 
 @media (min-width: 800px) {
     .goals {
+        justify-content: center;
+        align-items: center;
         display: flex;
         max-width: 1000px;
         margin-left: auto;
