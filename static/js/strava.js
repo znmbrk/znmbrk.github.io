@@ -7,7 +7,32 @@ function getActivities(res) {
     const activites_link = `https://www.strava.com/api/v3/athlete/activities?access_token=${res.access_token}`
 
     fetch(activites_link)
-        .then((res) => console.log(res.json()))
+        .then((res) => res.json())
+        .then(function (data) {
+            var map = L.map('map').setView([52.38199, -1.561976], 15);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            for (var x=0; x<data.length; x++) {
+                console.log(data[x].map.summary_polyline)
+                var coordinates = L.Polyline.fromEncoded(data[x].map.summary_polyline).getLatLngs()
+                console.log(coordinates)
+
+                L.polyline(
+
+                    coordinates,
+                    {
+                        color:"green",
+                        weight:5,
+                        opacity:.7,
+                        lineJoin:'round'
+                    }
+
+                ).addTo(map)
+            }
+        })
 
 }
 
