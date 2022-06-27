@@ -338,6 +338,8 @@ header {
     background-blend-mode: multiply;
     color: var(--clr-light);
     text-align: center;
+    height: auto;
+    width: 100%;
 }
 
 .section__title--goals {
@@ -446,6 +448,13 @@ header {
         position: relative;
         z-index: 2;
     }
+
+    .portfolio__item {
+        background: var(--clr-accent);
+        overflow: hidden;
+        height: auto;
+        width: auto;
+    }
 }
  
 /* My Work */
@@ -470,6 +479,9 @@ header {
 .portfolio__item {
     background: var(--clr-accent);
     overflow: hidden;
+    height: auto;
+    width: 90vw;
+    max-width: 100%;
 }
 
 .portfolio__img {
