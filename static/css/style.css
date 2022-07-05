@@ -602,6 +602,7 @@ header {
     width: 800px;
     margin-left: auto;
     margin-right: auto;
+    z-index: -10000;
 }
 
 @media (max-width: 800px) {
