@@ -576,10 +576,12 @@ header {
 }
 
 .portfolio-item-individual__title {
+    padding-top: 3rem;
     padding-bottom: 1em;
 }
 
 .portfolio-item-individual__subtitle {
+    padding-top: 0rem;
     padding-bottom: 0em;
     text-decoration: underline;
 }
