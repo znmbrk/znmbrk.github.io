@@ -6,9 +6,9 @@ let col = 0;
 
 function setup() {
     let canvas = createCanvas(800, 400);
-    canvas.parent("fourier");
     numCirc = createSlider(1, 100, 1, 1);
     speed = createSlider(0.01, 3, 0.01, 0.01);
+    canvas.parent("fourier");
     numCirc.parent("fourier");
     speed.parent("fourier");
 }
