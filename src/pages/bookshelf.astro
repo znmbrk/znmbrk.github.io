@@ -1,0 +1,148 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Bookshelf - Zain Mobarik">
+  <!-- Header Section -->
+  <header class="mb-16">
+    <div class="flex items-center mb-6">
+      <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mr-4">
+        <span class="text-3xl">📚</span>
+      </div>
+      <div>
+        <h1 class="text-4xl font-bold text-gray-900 tracking-tight">Bookshelf</h1>
+        <p class="text-lg text-gray-600 mt-1 max-w-2xl">
+          Books that have had a lasting impact on me, that I'd recommend to anyone interested in the topic area.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Book Categories -->
+  <div class="space-y-12">
+    <!-- Technology & Programming -->
+    <section class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+      <div class="flex items-center mb-6">
+        <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center mr-3">
+          <span class="text-lg">💻</span>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900">Technology & Programming</h2>
+      </div>
+      <div class="grid gap-4">
+        <div class="flex items-center p-4 rounded-xl hover:bg-gray-50 transition-colors group">
+          <div class="flex-1">
+            <a href="#" class="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+              Clean Code
+            </a>
+            <p class="text-gray-600 mt-1">by Robert C. Martin</p>
+            <p class="text-sm text-gray-500 mt-2">Essential principles for writing maintainable and readable code.</p>
+          </div>
+        </div>
+        <div class="flex items-center p-4 rounded-xl hover:bg-gray-50 transition-colors group">
+          <div class="flex-1">
+            <a href="#" class="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+              The Pragmatic Programmer
+            </a>
+            <p class="text-gray-600 mt-1">by David Thomas & Andrew Hunt</p>
+            <p class="text-sm text-gray-500 mt-2">Timeless advice on becoming a better software craftsman.</p>
+          </div>
+        </div>
+        <div class="flex items-center p-4 rounded-xl hover:bg-gray-50 transition-colors group">
+          <div class="flex-1">
+            <a href="#" class="text-lg font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">
+              System Design Interview
+            </a>
+            <p class="text-gray-600 mt-1">by Alex Xu</p>
+            <p class="text-sm text-gray-500 mt-2">Comprehensive guide to designing scalable systems.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Philosophy & Thinking -->
+    <section class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+      <div class="flex items-center mb-6">
+        <div class="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center mr-3">
+          <span class="text-lg">🧠</span>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900">Philosophy & Thinking</h2>
+      </div>
+      <div class="grid gap-4">
+        <div class="flex items-center p-4 rounded-xl hover:bg-gray-50 transition-colors group">
+          <div class="flex-1">
+            <a href="#" class="text-lg font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
+              Thinking, Fast and Slow
+            </a>
+            <p class="text-gray-600 mt-1">by Daniel Kahneman</p>
+            <p class="text-sm text-gray-500 mt-2">How we make decisions and the psychology behind our choices.</p>
+          </div>
+        </div>
+        <div class="flex items-center p-4 rounded-xl hover:bg-gray-50 transition-colors group">
+          <div class="flex-1">
+            <a href="#" class="text-lg font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
+              Meditations
+            </a>
+            <p class="text-gray-600 mt-1">by Marcus Aurelius</p>
+            <p class="text-sm text-gray-500 mt-2">Timeless wisdom on stoicism and personal philosophy.</p>
+          </div>
+        </div>
+        <div class="flex items-center p-4 rounded-xl hover:bg-gray-50 transition-colors group">
+          <div class="flex-1">
+            <a href="#" class="text-lg font-semibold text-gray-900 group-hover:text-purple-600 transition-colors">
+              The Almanack of Naval Ravikant
+            </a>
+            <p class="text-gray-600 mt-1">by Eric Jorgenson</p>
+            <p class="text-sm text-gray-500 mt-2">Insights on wealth, happiness, and decision-making.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Business & Entrepreneurship -->
+    <section class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
+      <div class="flex items-center mb-6">
+        <div class="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center mr-3">
+          <span class="text-lg">📈</span>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-900">Business & Entrepreneurship</h2>
+      </div>
+      <div class="grid gap-4">
+        <div class="flex items-center p-4 rounded-xl hover:bg-gray-50 transition-colors group">
+          <div class="flex-1">
+            <a href="#" class="text-lg font-semibold text-gray-900 group-hover:text-green-600 transition-colors">
+              Zero to One
+            </a>
+            <p class="text-gray-600 mt-1">by Peter Thiel</p>
+            <p class="text-sm text-gray-500 mt-2">Building companies that create new things and monopolies.</p>
+          </div>
+        </div>
+        <div class="flex items-center p-4 rounded-xl hover:bg-gray-50 transition-colors group">
+          <div class="flex-1">
+            <a href="#" class="text-lg font-semibold text-gray-900 group-hover:text-green-600 transition-colors">
+              The Lean Startup
+            </a>
+            <p class="text-gray-600 mt-1">by Eric Ries</p>
+            <p class="text-sm text-gray-500 mt-2">How to build sustainable businesses through innovation.</p>
+          </div>
+        </div>
+        <div class="flex items-center p-4 rounded-xl hover:bg-gray-50 transition-colors group">
+          <div class="flex-1">
+            <a href="#" class="text-lg font-semibold text-gray-900 group-hover:text-green-600 transition-colors">
+              Blitzscaling
+            </a>
+            <p class="text-gray-600 mt-1">by Reid Hoffman</p>
+            <p class="text-sm text-gray-500 mt-2">The lightning-fast path to building massively valuable companies.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="mt-16 pt-8 border-t border-gray-200">
+    <a href="/" class="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors group">
+      <span class="mr-2 group-hover:-translate-x-1 transition-transform">←</span>
+      Back to home
+    </a>
+  </nav>
+</Layout>
