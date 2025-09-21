@@ -1,0 +1,26 @@
+---
+import Layout from '../../layouts/Layout.astro';
+---
+
+<Layout title="My Runs - Projects - Zain Mobarik">
+  <h1>My Runs</h1>
+  <p class="author">Strava API integration project</p>
+
+  <h2>Project Explanation</h2>
+
+  <p>Utilised Strava's API to send POST and GET requests to track data about my runs. I then used JavaScript to display this data on my map.</p>
+
+  <p>I used Postman to send my POST and GET requests. These requests were made to retrieve my personal refresh and authorisation tokens for Strava's API.</p>
+
+  <h2>Cool Features!</h2>
+
+  <h3>Display of the Map</h3>
+  <p>In order to display the map, I used an online map called Open Street Map</p>
+
+  <h3>Polyline Decoding</h3>
+  <p>I then had to decode the coordinates of my runs as they were in a string format. Hence, I had to use a Polyline decoder to get the numeric value to then add to my map.</p>
+
+  <hr>
+
+  <p><a href="/projects">← Back to projects</a></p>
+</Layout>
