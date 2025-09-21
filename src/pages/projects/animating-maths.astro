@@ -16,7 +16,7 @@ import Layout from '../../layouts/Layout.astro';
 
   <p>A Fourier series is a sum that represents a periodic function as a sum of sine and cosine waves.</p>
 
-  <div id="fourier" style="text-align: center; margin: 20px 0; padding: 20px; border: 1px solid #ccc;"></div>
+  <div id="fourier" style="text-align: center; margin: 20px 0; padding: 20px; border: 1px solid #ccc; overflow-x: auto; max-width: 100%;"></div>
 
   <p><strong>Interactive Controls:</strong></p>
   <ul>
@@ -38,10 +38,19 @@ import Layout from '../../layouts/Layout.astro';
     let col = 0;
 
     function setup() {
-        let canvas = createCanvas(800, 400);
+        // Make canvas responsive
+        let containerWidth = document.getElementById('fourier').offsetWidth;
+        let canvasWidth = Math.min(800, containerWidth - 40); // 40px for padding
+        let canvasHeight = Math.min(400, canvasWidth * 0.5); // Maintain aspect ratio
+
+        let canvas = createCanvas(canvasWidth, canvasHeight);
         numCirc = createSlider(1, 100, 1, 1);
         speed = createSlider(0.01, 3, 0.01, 0.01);
         canvas.parent("fourier");
+
+        // Make sliders responsive too
+        numCirc.style('width', Math.min(200, canvasWidth * 0.8) + 'px');
+        speed.style('width', Math.min(200, canvasWidth * 0.8) + 'px');
 
         // Add labels for the sliders
         let label1 = createP('Number of Circles:');
@@ -57,7 +66,13 @@ import Layout from '../../layouts/Layout.astro';
 
     function draw() {
         background(0);
-        translate(250, 200);
+
+        // Make positions responsive to canvas size
+        let centerX = width * 0.3; // 30% from left
+        let centerY = height * 0.5; // Center vertically
+        let waveX = width * 0.65; // Wave starts at 65% from left
+
+        translate(centerX, centerY);
 
         let x = 0;
         let y = 0;
@@ -68,7 +83,9 @@ import Layout from '../../layouts/Layout.astro';
             let prevY = y;
             let n = i * 2 + 1;
 
-            let radius = 80 * (4 / (n * PI));
+            // Scale radius based on canvas size
+            let baseRadius = Math.min(width, height) * 0.08; // 8% of smaller dimension
+            let radius = baseRadius * (4 / (n * PI));
             x += radius * cos(n * time);
             y += radius * sin(n * time);
 
@@ -81,18 +98,20 @@ import Layout from '../../layouts/Layout.astro';
         }
 
         wave.unshift(y);
-        translate(210, 0);
-        line(x - 210, y, 0, wave[0]);
+        let waveStartX = waveX - centerX;
+        translate(waveStartX, 0);
+        line(x - waveStartX, y, 0, wave[0]);
 
         beginShape();
         noFill();
         stroke(255);
-        for (let i = 0; i < wave.length; i++) {
+        let maxWaveLength = Math.min(150, width * 0.3); // Limit wave length based on screen size
+        for (let i = 0; i < Math.min(wave.length, maxWaveLength); i++) {
             vertex(i, wave[i]);
         }
         endShape();
 
-        if (wave.length > 150) {
+        if (wave.length > maxWaveLength) {
             wave.pop();
         }
 
