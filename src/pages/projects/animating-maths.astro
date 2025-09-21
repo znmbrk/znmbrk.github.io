@@ -16,7 +16,87 @@ import Layout from '../../layouts/Layout.astro';
 
   <p>A Fourier series is a sum that represents a periodic function as a sum of sine and cosine waves.</p>
 
+  <div id="fourier" style="text-align: center; margin: 20px 0; padding: 20px; border: 1px solid #ccc;"></div>
+
+  <p><strong>Interactive Controls:</strong></p>
+  <ul>
+    <li>Use the first slider to control the number of circles (epicycles)</li>
+    <li>Use the second slider to control the animation speed</li>
+    <li>Watch how more circles create a more accurate square wave approximation</li>
+  </ul>
+
   <hr>
 
   <p><a href="/projects">← Back to projects</a></p>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.1/p5.js"></script>
+  <script is:inline>
+    let time = 0;
+    let wave = [];
+    let numCirc;
+    let speed;
+    let col = 0;
+
+    function setup() {
+        let canvas = createCanvas(800, 400);
+        numCirc = createSlider(1, 100, 1, 1);
+        speed = createSlider(0.01, 3, 0.01, 0.01);
+        canvas.parent("fourier");
+
+        // Add labels for the sliders
+        let label1 = createP('Number of Circles:');
+        label1.parent("fourier");
+        label1.style('margin', '10px 0 5px 0');
+        numCirc.parent("fourier");
+
+        let label2 = createP('Animation Speed:');
+        label2.parent("fourier");
+        label2.style('margin', '10px 0 5px 0');
+        speed.parent("fourier");
+    }
+
+    function draw() {
+        background(0);
+        translate(250, 200);
+
+        let x = 0;
+        let y = 0;
+        for (let i = 0; i < numCirc.value(); i++) {
+            col = random(255);
+
+            let prevX = x;
+            let prevY = y;
+            let n = i * 2 + 1;
+
+            let radius = 80 * (4 / (n * PI));
+            x += radius * cos(n * time);
+            y += radius * sin(n * time);
+
+            stroke(255, 150);
+            noFill();
+            ellipse(prevX, prevY, radius * 2);
+
+            stroke(200, col, 200);
+            line(prevX, prevY, x, y);
+        }
+
+        wave.unshift(y);
+        translate(210, 0);
+        line(x - 210, y, 0, wave[0]);
+
+        beginShape();
+        noFill();
+        stroke(255);
+        for (let i = 0; i < wave.length; i++) {
+            vertex(i, wave[i]);
+        }
+        endShape();
+
+        if (wave.length > 150) {
+            wave.pop();
+        }
+
+        time += speed.value();
+    }
+  </script>
 </Layout>
