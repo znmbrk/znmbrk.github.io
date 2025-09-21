@@ -3,8 +3,11 @@ import Layout from '../../layouts/Layout.astro';
 ---
 
 <Layout title="My Runs - Projects - Zain Mobarik">
+
   <h1>My Runs</h1>
   <p class="author">Strava API integration project</p>
+
+  <div id="map" style="height: 400px; width: 100%; margin: 20px 0; border: 1px solid #ccc;"></div>
 
   <h2>Project Explanation</h2>
 
@@ -23,4 +26,156 @@ import Layout from '../../layouts/Layout.astro';
   <hr>
 
   <p><a href="/projects">← Back to projects</a></p>
+
+  <script is:inline>
+    console.log('Script is running!');
+
+    // Wait for page to load, then load Leaflet and initialize map
+    window.addEventListener('load', function() {
+      console.log('Page loaded, starting Leaflet setup...');
+
+      // Load Leaflet CSS
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.8.0/dist/leaflet.css';
+      document.head.appendChild(link);
+
+      // Load Leaflet JS
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.8.0/dist/leaflet.js';
+      script.onload = function() {
+        console.log('Leaflet loaded successfully');
+        initializeMap();
+      };
+      script.onerror = function() {
+        console.error('Failed to load Leaflet');
+        // Show a simple sample map instead
+        document.getElementById('map').innerHTML = '<div style="padding: 20px; text-align: center; background: #f0f0f0;">Map loading failed. Please check your internet connection.</div>';
+      };
+      document.head.appendChild(script);
+    });
+
+    function initializeMap() {
+      // First create a basic map to test
+      console.log('Initializing map...');
+      var map = L.map('map').setView([52.38199, -1.561976], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      // Add a test marker
+      L.marker([52.38199, -1.561976]).addTo(map)
+        .bindPopup('Loading your Strava data...')
+        .openPopup();
+
+      // Now try to load Strava data
+      loadStravaData(map);
+    }
+
+    function loadStravaData(map) {
+      console.log('Loading Strava data...');
+
+      fetch("https://www.strava.com/oauth/token", {
+        method: "POST",
+        headers: {
+          "Accept": "application/json, text/plain, */*",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          client_id: "88503",
+          client_secret: "fcbcf53e9cd8bb3d0387e04b93b6a784923b901e",
+          refresh_token: "e239e8706ab7995e2048a877cf10909214db6d78",
+          grant_type: "refresh_token"
+        })
+      })
+      .then(res => res.json())
+      .then(tokenData => {
+        console.log('Token refresh successful');
+        return fetch(`https://www.strava.com/api/v3/athlete/activities?access_token=${tokenData.access_token}&per_page=10`);
+      })
+      .then(res => res.json())
+      .then(activities => {
+        console.log('Activities loaded:', activities.length);
+
+        if (activities.length > 0) {
+          // Clear the loading marker
+          map.eachLayer(function(layer) {
+            if (layer instanceof L.Marker) {
+              map.removeLayer(layer);
+            }
+          });
+
+          const colors = ['green', 'blue', 'red', 'purple', 'orange', 'darkgreen', 'cadetblue'];
+          let routeCount = 0;
+
+          activities.forEach((activity, index) => {
+            if (activity.map && activity.map.summary_polyline) {
+              // Simple polyline decoding
+              const coords = decodePolyline(activity.map.summary_polyline);
+
+              L.polyline(coords, {
+                color: colors[index % colors.length],
+                weight: 4,
+                opacity: 0.7
+              }).addTo(map).bindPopup(`
+                <b>${activity.name}</b><br>
+                Distance: ${(activity.distance / 1000).toFixed(2)} km<br>
+                Duration: ${Math.floor(activity.moving_time / 60)} minutes
+              `);
+
+              routeCount++;
+            }
+          });
+
+          // Center on first activity
+          if (activities[0].start_latlng) {
+            map.setView([activities[0].start_latlng[0], activities[0].start_latlng[1]], 12);
+          }
+
+          // Add summary marker
+          L.marker([activities[0].start_latlng[0], activities[0].start_latlng[1]]).addTo(map)
+            .bindPopup(`<b>My Running Routes</b><br>${routeCount} routes displayed`)
+            .openPopup();
+        }
+      })
+      .catch(error => {
+        console.error('Error loading Strava data:', error);
+        L.marker([52.38199, -1.561976]).addTo(map)
+          .bindPopup('Error loading Strava data. Check console for details.')
+          .openPopup();
+      });
+    }
+
+    // Simplified polyline decoder
+    function decodePolyline(encoded) {
+      var points = [];
+      var index = 0, len = encoded.length;
+      var lat = 0, lng = 0;
+
+      while (index < len) {
+        var b, shift = 0, result = 0;
+        do {
+          b = encoded.charCodeAt(index++) - 63;
+          result |= (b & 0x1f) << shift;
+          shift += 5;
+        } while (b >= 0x20);
+        var dlat = ((result & 1) ? ~(result >> 1) : (result >> 1));
+        lat += dlat;
+
+        shift = 0;
+        result = 0;
+        do {
+          b = encoded.charCodeAt(index++) - 63;
+          result |= (b & 0x1f) << shift;
+          shift += 5;
+        } while (b >= 0x20);
+        var dlng = ((result & 1) ? ~(result >> 1) : (result >> 1));
+        lng += dlng;
+
+        points.push([lat * 1e-5, lng * 1e-5]);
+      }
+      return points;
+    }
+  </script>
 </Layout>
