@@ -7,7 +7,13 @@ import Layout from '../../layouts/Layout.astro';
   <h1>My Runs</h1>
   <p class="author">Strava API integration project</p>
 
-  <div id="map" style="height: 400px; width: 100%; margin: 20px 0; border: 1px solid #ccc;"></div>
+  <div style="position: relative;">
+    <div id="map" style="height: 400px; width: 100%; margin: 20px 0; border: 1px solid #ccc;"></div>
+    <div style="position: absolute; top: 30px; right: 10px; z-index: 1000; display: flex; flex-direction: column; gap: 10px;">
+      <button id="locationBtn" style="background: white; border: 2px solid #333; padding: 8px 12px; cursor: pointer; font-size: 14px; border-radius: 4px;">📍 My Location</button>
+      <button id="cycleBtn" style="background: white; border: 2px solid #333; padding: 8px 12px; cursor: pointer; font-size: 14px; border-radius: 4px;">🏃 Next Run</button>
+    </div>
+  </div>
 
   <h2>Project Explanation</h2>
 
@@ -55,22 +61,88 @@ import Layout from '../../layouts/Layout.astro';
       document.head.appendChild(script);
     });
 
+    // Global variables for button functionality
+    let globalMap;
+    let activities = [];
+    let currentRunIndex = 0;
+
     function initializeMap() {
       // First create a basic map to test
       console.log('Initializing map...');
-      var map = L.map('map').setView([52.38199, -1.561976], 13);
+      globalMap = L.map('map').setView([52.38199, -1.561976], 13);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(map);
+      }).addTo(globalMap);
 
       // Add a test marker
-      L.marker([52.38199, -1.561976]).addTo(map)
+      L.marker([52.38199, -1.561976]).addTo(globalMap)
         .bindPopup('Loading your Strava data...')
         .openPopup();
 
+      // Set up button event listeners
+      setupButtons();
+
       // Now try to load Strava data
-      loadStravaData(map);
+      loadStravaData(globalMap);
+    }
+
+    function setupButtons() {
+      // My Location button
+      document.getElementById('locationBtn').addEventListener('click', function() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            globalMap.setView([lat, lng], 15);
+
+            // Add or update current location marker
+            if (window.currentLocationMarker) {
+              globalMap.removeLayer(window.currentLocationMarker);
+            }
+
+            window.currentLocationMarker = L.marker([lat, lng], {
+              icon: L.divIcon({
+                className: 'current-location-marker',
+                html: '<div style="background: #4285f4; border: 3px solid white; width: 20px; height: 20px; border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.3);"></div>',
+                iconSize: [20, 20],
+                iconAnchor: [10, 10]
+              })
+            }).addTo(globalMap).bindPopup('📍 Your current location');
+
+          }, function(error) {
+            alert('Error getting your location: ' + error.message);
+          });
+        } else {
+          alert('Geolocation is not supported by this browser.');
+        }
+      });
+
+      // Cycle through runs button
+      document.getElementById('cycleBtn').addEventListener('click', function() {
+        if (activities.length === 0) {
+          alert('No runs loaded yet!');
+          return;
+        }
+
+        currentRunIndex = (currentRunIndex + 1) % activities.length;
+        const currentActivity = activities[currentRunIndex];
+
+        if (currentActivity.start_latlng) {
+          globalMap.setView([currentActivity.start_latlng[0], currentActivity.start_latlng[1]], 14);
+
+          // Find and highlight the current run
+          globalMap.eachLayer(function(layer) {
+            if (layer instanceof L.Polyline && layer.options.activityId === currentActivity.id) {
+              layer.openPopup();
+            }
+          });
+        }
+
+        // Update button text to show which run we're viewing
+        document.getElementById('cycleBtn').innerHTML = `🏃 Run ${currentRunIndex + 1}/${activities.length}`;
+      });
     }
 
     function loadStravaData(map) {
@@ -95,8 +167,9 @@ import Layout from '../../layouts/Layout.astro';
         return fetch(`https://www.strava.com/api/v3/athlete/activities?access_token=${tokenData.access_token}&per_page=10`);
       })
       .then(res => res.json())
-      .then(activities => {
-        console.log('Activities loaded:', activities.length);
+      .then(data => {
+        console.log('Activities loaded:', data.length);
+        activities = data; // Store activities globally
 
         if (activities.length > 0) {
           // Clear the loading marker
@@ -117,11 +190,13 @@ import Layout from '../../layouts/Layout.astro';
               L.polyline(coords, {
                 color: colors[index % colors.length],
                 weight: 4,
-                opacity: 0.7
+                opacity: 0.7,
+                activityId: activity.id // Add activity ID for cycling
               }).addTo(map).bindPopup(`
                 <b>${activity.name}</b><br>
                 Distance: ${(activity.distance / 1000).toFixed(2)} km<br>
-                Duration: ${Math.floor(activity.moving_time / 60)} minutes
+                Duration: ${Math.floor(activity.moving_time / 60)} minutes<br>
+                <small>Click "Next Run" to cycle through runs</small>
               `);
 
               routeCount++;
@@ -135,8 +210,11 @@ import Layout from '../../layouts/Layout.astro';
 
           // Add summary marker
           L.marker([activities[0].start_latlng[0], activities[0].start_latlng[1]]).addTo(map)
-            .bindPopup(`<b>My Running Routes</b><br>${routeCount} routes displayed`)
+            .bindPopup(`<b>My Running Routes</b><br>${routeCount} routes displayed<br><small>Use the buttons to navigate</small>`)
             .openPopup();
+
+          // Update cycle button with initial count
+          document.getElementById('cycleBtn').innerHTML = `🏃 Run 1/${activities.length}`;
         }
       })
       .catch(error => {
