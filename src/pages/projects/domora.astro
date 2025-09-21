@@ -7,10 +7,16 @@ import Layout from '../../layouts/Layout.astro';
   <p class="author">AI-powered assistant for real estate agents</p>
 
   <div style="text-align: center; margin: 20px 0;">
-    <video controls preload="metadata" style="max-width: 100%; height: auto; max-height: 400px;">
-      <source src="https://youtu.be/DSeNMOBdnOY" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
+    <div style="position: relative; width: 100%; max-width: 800px; margin: 0 auto; aspect-ratio: 16/9;">
+      <iframe
+        src="https://www.youtube.com/embed/DSeNMOBdnOY"
+        title="Domora YC Application Video"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+      </iframe>
+    </div>
     <p style="font-style: italic; margin-top: 10px;">YC Application Video (S25)</p>
   </div>
 
