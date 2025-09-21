@@ -3,125 +3,25 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Blog - Zain Mobarik">
-  <!-- Header Section -->
-  <header class="mb-16">
-    <div class="flex items-center mb-6">
-      <div class="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mr-4">
-        <span class="text-3xl">📝</span>
-      </div>
-      <div>
-        <h1 class="text-4xl font-bold text-gray-900 tracking-tight">Blog Posts</h1>
-        <p class="text-lg text-gray-600 mt-1">
-          Thoughts on technology, life, and everything in between.
-        </p>
-      </div>
-    </div>
-  </header>
+  <h1>Blog Posts</h1>
 
-  <!-- Blog Posts Grid -->
-  <div class="space-y-8">
-    <article class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-      <div class="flex items-center justify-between mb-4">
-        <time class="text-sm font-medium text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
-          March 15, 2025
-        </time>
-        <span class="text-xs text-gray-400">5 min read</span>
-      </div>
+  <p>Thoughts on technology, life, and everything in between.</p>
 
-      <h2 class="text-2xl font-bold text-gray-900 mb-4 leading-tight">
-        <a href="/blog/first-post" class="hover:text-green-600 transition-colors">
-          Building a Minimalist Personal Website
-        </a>
-      </h2>
+  <hr>
 
-      <p class="text-gray-600 leading-relaxed mb-4">
-        Why I chose to build a simple, content-focused website and the tools I used to create it. Exploring the balance between aesthetics and functionality...
-      </p>
+  <h3><a href="/blog/getting-started-with-astro">Getting Started with Astro</a></h3>
+  <p class="author">March 15, 2025 • 5 min read</p>
+  <p class="description">My thoughts on Astro after building my first project with it. The developer experience is fantastic and the performance is incredible.</p>
 
-      <div class="flex items-center justify-between">
-        <div class="flex space-x-2">
-          <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full">Design</span>
-          <span class="text-xs bg-purple-50 text-purple-600 px-2 py-1 rounded-full">Web Dev</span>
-        </div>
-        <a href="/blog/first-post" class="text-sm text-green-600 hover:text-green-700 font-medium">
-          Read more →
-        </a>
-      </div>
-    </article>
+  <h3><a href="/blog/why-i-joined-a-startup">Why I Joined a Startup</a></h3>
+  <p class="author">March 2, 2025 • 8 min read</p>
+  <p class="description">Leaving the corporate world behind to experience the fast pace and innovation of a Series B startup. Here's what I've learned so far.</p>
 
-    <article class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-      <div class="flex items-center justify-between mb-4">
-        <time class="text-sm font-medium text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
-          March 10, 2025
-        </time>
-        <span class="text-xs text-gray-400">8 min read</span>
-      </div>
+  <h3><a href="/blog/building-personal-websites">Building Personal Websites in 2025</a></h3>
+  <p class="author">February 20, 2025 • 6 min read</p>
+  <p class="description">The tools and frameworks I recommend for building fast, simple personal websites. Less is more when it comes to personal branding.</p>
 
-      <h2 class="text-2xl font-bold text-gray-900 mb-4 leading-tight">
-        <a href="/blog/second-post" class="hover:text-green-600 transition-colors">
-          Lessons from Reading 50 Books This Year
-        </a>
-      </h2>
+  <hr>
 
-      <p class="text-gray-600 leading-relaxed mb-4">
-        What I learned from committing to reading more and how it changed my perspective on learning, productivity, and personal growth...
-      </p>
-
-      <div class="flex items-center justify-between">
-        <div class="flex space-x-2">
-          <span class="text-xs bg-orange-50 text-orange-600 px-2 py-1 rounded-full">Learning</span>
-          <span class="text-xs bg-green-50 text-green-600 px-2 py-1 rounded-full">Books</span>
-        </div>
-        <a href="/blog/second-post" class="text-sm text-green-600 hover:text-green-700 font-medium">
-          Read more →
-        </a>
-      </div>
-    </article>
-
-    <article class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-      <div class="flex items-center justify-between mb-4">
-        <time class="text-sm font-medium text-gray-500 bg-gray-50 px-3 py-1 rounded-full">
-          March 5, 2025
-        </time>
-        <span class="text-xs text-gray-400">6 min read</span>
-      </div>
-
-      <h2 class="text-2xl font-bold text-gray-900 mb-4 leading-tight">
-        <a href="/blog/third-post" class="hover:text-green-600 transition-colors">
-          The Power of Small, Consistent Habits
-        </a>
-      </h2>
-
-      <p class="text-gray-600 leading-relaxed mb-4">
-        How making tiny changes compound over time and create meaningful impact in both work and life. A deep dive into habit formation...
-      </p>
-
-      <div class="flex items-center justify-between">
-        <div class="flex space-x-2">
-          <span class="text-xs bg-purple-50 text-purple-600 px-2 py-1 rounded-full">Habits</span>
-          <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full">Productivity</span>
-        </div>
-        <a href="/blog/third-post" class="text-sm text-green-600 hover:text-green-700 font-medium">
-          Read more →
-        </a>
-      </div>
-    </article>
-
-    <!-- Coming Soon -->
-    <div class="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-12 text-center">
-      <div class="w-16 h-16 bg-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-4">
-        <span class="text-2xl">✏️</span>
-      </div>
-      <h3 class="text-xl font-semibold text-gray-700 mb-2">More posts coming soon</h3>
-      <p class="text-gray-500">Currently working on some exciting content about startup life and product building.</p>
-    </div>
-  </div>
-
-  <!-- Navigation -->
-  <nav class="mt-16 pt-8 border-t border-gray-200">
-    <a href="/" class="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors group">
-      <span class="mr-2 group-hover:-translate-x-1 transition-transform">←</span>
-      Back to home
-    </a>
-  </nav>
+  <p><a href="/">← Back to home</a></p>
 </Layout>
