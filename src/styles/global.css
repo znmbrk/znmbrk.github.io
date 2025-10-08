@@ -54,14 +54,14 @@ p {
 
 /* Book/project titles - make them stand out */
 h3 a {
-  color: #333;
-  text-decoration: none;
+  color: #0000EE;
+  text-decoration: underline;
   font-weight: bold;
+  cursor: pointer;
 }
 
 h3 a:hover {
-  color: #0000EE;
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 /* Author/metadata styling */
