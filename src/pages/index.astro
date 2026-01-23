@@ -11,58 +11,23 @@ import Layout from '../layouts/Layout.astro';
 
   <p>> recently left the corporate world to experience the fast pace and magic of a Series B startup.</p>
 
-  <img src="/face card.png" alt="Zain Mobarik hiking" style="width: 100%; max-width: 500px; height: auto; border-radius: 8px; margin: 30px 0;" />
+  <div style="display: flex; gap: 20px; margin: 30px 0; flex-wrap: wrap; align-items: flex-start;">
+    <img src="/face card.png" alt="Zain Mobarik hiking" style="width: 300px; height: 300px; object-fit: cover; border-radius: 8px;" />
 
-  <hr>
+    <div style="flex: 1; min-width: 300px;">
+      <a href="/projects/strava-api" style="display: block; text-decoration: none;">
+        <div id="map" style="height: 300px; width: 100%; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; position: relative;"></div>
+        <p style="margin-top: 10px; text-align: center; font-size: 14px; color: #666;">🏃 View My Running Routes →</p>
+      </a>
+    </div>
+  </div>
 
   <h2>things i like</h2>
 
   <p>• coffee —> drink a lethal amount and have non-performatively read <a href="https://www.amazon.co.uk/World-Atlas-Coffee-explored-explained/dp/1784724297">the world atlas of coffee</a></p>
   <p>• fudge —> love my friends from school who made <a href="https://www.fudgebusiness.co.uk/">thefudgebusiness</a></p>
   <p>• <a href="https://www.eatnakd.com/products/original-bars">nakd bars</a> —> pb is having 13 in one day, messaged the CEO of nakd bars to tell him how much I love them</p>
-  <p>• travelling —> visited 23 countries - helps me zoom out of life and reflect on the diversity of existence</p>
-
-  <h2>quotes i like</h2>
-
-  <div class="quote">
-    <p class="quote-text">"In order to be heard, you have to first listen"</p>
-  </div>
-
-  <div class="quote">
-    <p class="quote-text">"Intelligence is the ability to respond to any argument. Wisdom lies in knowing which arguments to respond and which parts of arguments to respond to."</p>
-  </div>
-
-  <div class="quote">
-    <p class="quote-text">"City life is millions of people being lonesome together"</p>
-  </div>
-
-  <div class="quote">
-    <p class="quote-text">"Studio 54 is a dictatorship at the door and a democracy on the dance floor"</p>
-  </div>
-
-  <div class="quote">
-    <p class="quote-text">"It is a shame for a man to grow old without seeing the beauty and strength of which his body is capable."</p>
-    <p class="quote-author">— Socrates</p>
-  </div>
-
-  <div class="quote">
-    <p class="quote-text">"The world is a malleable place. If you know what you want, and you go for it with maximum energy and passion, the world will often reconfigure itself around you much more quickly and easily than you would think."</p>
-    <p class="quote-author">— Marc Andreessen</p>
-  </div>
-
-  <div class="quote">
-    <p class="quote-text">"The reasonable man adapts himself to the world: the unreasonable one persists in trying to adapt the world to himself. Therefore all progress depends on the unreasonable man."</p>
-    <p class="quote-author">— George Bernard Shaw</p>
-  </div>
-
-  <div class="quote">
-    <p class="quote-text">"A university degree, four books, and hundreds of articles and I still make mistakes when reading, You write to me 'good morning' and I read it as, 'I love you'."</p>
-    <p class="quote-author">— Mahmoud Darwish</p>
-  </div>
-
-  <div class="quote">
-    <p class="quote-text">"Everyone wants a village, no one wants to be a villager"</p>
-  </div>
+  <p>• travelling —> visited 23 countries (recent new country: china) - it's fun not to think about b2b saas sometimes</p>
 
   <hr>
 
@@ -74,4 +39,158 @@ import Layout from '../layouts/Layout.astro';
     <a href="/projects">💼 Projects</a>
     <a href="/contact">📧 Contact</a>
   </div>
+
+  <script is:inline>
+    console.log('Script is running!');
+
+    // Wait for page to load, then load Leaflet and initialize map
+    window.addEventListener('load', function() {
+      console.log('Page loaded, starting Leaflet setup...');
+
+      // Load Leaflet CSS
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = 'https://unpkg.com/leaflet@1.8.0/dist/leaflet.css';
+      document.head.appendChild(link);
+
+      // Load Leaflet JS
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.8.0/dist/leaflet.js';
+      script.onload = function() {
+        console.log('Leaflet loaded successfully');
+        initializeMap();
+      };
+      script.onerror = function() {
+        console.error('Failed to load Leaflet');
+        document.getElementById('map').innerHTML = '<div style="padding: 20px; text-align: center; background: #f0f0f0;">Map loading failed. Please check your internet connection.</div>';
+      };
+      document.head.appendChild(script);
+    });
+
+    // Global variables
+    let globalMap;
+    let activities = [];
+
+    function initializeMap() {
+      console.log('Initializing map...');
+      globalMap = L.map('map').setView([52.38199, -1.561976], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(globalMap);
+
+      // Add a test marker
+      L.marker([52.38199, -1.561976]).addTo(globalMap)
+        .bindPopup('Loading your Strava data...')
+        .openPopup();
+
+      // Now try to load Strava data
+      loadStravaData(globalMap);
+    }
+
+    function loadStravaData(map) {
+      console.log('Loading Strava data...');
+
+      fetch("https://www.strava.com/oauth/token", {
+        method: "POST",
+        headers: {
+          "Accept": "application/json, text/plain, */*",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          client_id: "88503",
+          client_secret: "fcbcf53e9cd8bb3d0387e04b93b6a784923b901e",
+          refresh_token: "e239e8706ab7995e2048a877cf10909214db6d78",
+          grant_type: "refresh_token"
+        })
+      })
+      .then(res => res.json())
+      .then(tokenData => {
+        console.log('Token refresh successful');
+        return fetch(`https://www.strava.com/api/v3/athlete/activities?access_token=${tokenData.access_token}&per_page=1`);
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log('Activities loaded:', data.length);
+        activities = data;
+
+        if (activities.length > 0) {
+          // Clear the loading marker
+          map.eachLayer(function(layer) {
+            if (layer instanceof L.Marker) {
+              map.removeLayer(layer);
+            }
+          });
+
+          const activity = activities[0];
+
+          if (activity.map && activity.map.summary_polyline) {
+            const coords = decodePolyline(activity.map.summary_polyline);
+
+            L.polyline(coords, {
+              color: 'blue',
+              weight: 4,
+              opacity: 0.7
+            }).addTo(map).bindPopup(`
+              <b>My Most Recent Run</b><br>
+              ${activity.name}<br>
+              Distance: ${(activity.distance / 1000).toFixed(2)} km<br>
+              Duration: ${Math.floor(activity.moving_time / 60)} minutes<br>
+              <small><a href="/projects/strava-api">Click here to view all my runs →</a></small>
+            `);
+          }
+
+          // Center on the activity
+          if (activity.start_latlng) {
+            map.setView([activity.start_latlng[0], activity.start_latlng[1]], 13);
+          }
+
+          // Add a marker at the start point
+          L.marker([activity.start_latlng[0], activity.start_latlng[1]]).addTo(map)
+            .bindPopup(`
+              <b>My Most Recent Run</b><br>
+              <small>Click the map to explore or <a href="/projects/strava-api">view all runs →</a></small>
+            `)
+            .openPopup();
+        }
+      })
+      .catch(error => {
+        console.error('Error loading Strava data:', error);
+        L.marker([52.38199, -1.561976]).addTo(map)
+          .bindPopup('Error loading Strava data. Check console for details.')
+          .openPopup();
+      });
+    }
+
+    // Simplified polyline decoder
+    function decodePolyline(encoded) {
+      var points = [];
+      var index = 0, len = encoded.length;
+      var lat = 0, lng = 0;
+
+      while (index < len) {
+        var b, shift = 0, result = 0;
+        do {
+          b = encoded.charCodeAt(index++) - 63;
+          result |= (b & 0x1f) << shift;
+          shift += 5;
+        } while (b >= 0x20);
+        var dlat = ((result & 1) ? ~(result >> 1) : (result >> 1));
+        lat += dlat;
+
+        shift = 0;
+        result = 0;
+        do {
+          b = encoded.charCodeAt(index++) - 63;
+          result |= (b & 0x1f) << shift;
+          shift += 5;
+        } while (b >= 0x20);
+        var dlng = ((result & 1) ? ~(result >> 1) : (result >> 1));
+        lng += dlng;
+
+        points.push([lat * 1e-5, lng * 1e-5]);
+      }
+      return points;
+    }
+  </script>
 </Layout>
