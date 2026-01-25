@@ -64,7 +64,7 @@ import Layout from '../../layouts/Layout.astro';
     // Global variables for button functionality
     let globalMap;
     let activities = [];
-    let currentRunIndex = 0;
+    let currentRunIndex = -1;
 
     function initializeMap() {
       // First create a basic map to test
@@ -139,9 +139,6 @@ import Layout from '../../layouts/Layout.astro';
             }
           });
         }
-
-        // Update button text to show which run we're viewing
-        document.getElementById('cycleBtn').innerHTML = `🏃 Run ${currentRunIndex + 1}/${activities.length}`;
       });
     }
 
@@ -187,6 +184,12 @@ import Layout from '../../layouts/Layout.astro';
               // Simple polyline decoding
               const coords = decodePolyline(activity.map.summary_polyline);
 
+              const activityDate = new Date(activity.start_date_local).toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric'
+              });
+
               L.polyline(coords, {
                 color: colors[index % colors.length],
                 weight: 4,
@@ -194,6 +197,7 @@ import Layout from '../../layouts/Layout.astro';
                 activityId: activity.id // Add activity ID for cycling
               }).addTo(map).bindPopup(`
                 <b>${activity.name}</b><br>
+                Date: ${activityDate}<br>
                 Distance: ${(activity.distance / 1000).toFixed(2)} km<br>
                 Duration: ${Math.floor(activity.moving_time / 60)} minutes<br>
                 <small>Click "Next Run" to cycle through runs</small>
@@ -210,11 +214,8 @@ import Layout from '../../layouts/Layout.astro';
 
           // Add summary marker
           L.marker([activities[0].start_latlng[0], activities[0].start_latlng[1]]).addTo(map)
-            .bindPopup(`<b>My Running Routes</b><br>${routeCount} routes displayed<br><small>Use the buttons to navigate</small>`)
+            .bindPopup(`<b>10 most recent runs</b><br><small>Use the buttons to navigate</small>`)
             .openPopup();
-
-          // Update cycle button with initial count
-          document.getElementById('cycleBtn').innerHTML = `🏃 Run 1/${activities.length}`;
         }
       })
       .catch(error => {

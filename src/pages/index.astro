@@ -3,7 +3,10 @@ import Layout from '../layouts/Layout.astro';
 ---
 
 <Layout title="Zain Mobarik">
-  <h1>Zain Mobarik</h1>
+  <div class="header-container">
+    <h1>Zain Mobarik</h1>
+    <img src="/face card.png" alt="Zain Mobarik hiking" class="profile-image" />
+  </div>
 
   <p>> currently working as founder's associate at incident.io.</p>
 
@@ -11,13 +14,13 @@ import Layout from '../layouts/Layout.astro';
 
   <p>> recently left the corporate world to experience the fast pace and magic of a Series B startup.</p>
 
-  <div style="display: flex; gap: 20px; margin: 30px 0; flex-wrap: wrap; align-items: flex-start;">
-    <img src="/face card.png" alt="Zain Mobarik hiking" style="width: 300px; height: 300px; object-fit: cover; border-radius: 8px;" />
+  <div class="content-container">
+    <img src="/face card.png" alt="Zain Mobarik hiking" class="profile-image-desktop" />
 
     <div style="flex: 1; min-width: 300px;">
       <a href="/projects/strava-api" style="display: block; text-decoration: none;">
         <div id="map" style="height: 300px; width: 100%; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; position: relative;"></div>
-        <p style="margin-top: 10px; text-align: center; font-size: 14px; color: #666;">🏃 View My Running Routes →</p>
+        <p style="margin-top: 10px; text-align: center; font-size: 14px; color: #666;">🏃 View all runs →</p>
       </a>
     </div>
   </div>
@@ -132,7 +135,7 @@ import Layout from '../layouts/Layout.astro';
               weight: 4,
               opacity: 0.7
             }).addTo(map).bindPopup(`
-              <b>My Most Recent Run</b><br>
+              <b>Most recent run</b><br>
               ${activity.name}<br>
               Distance: ${(activity.distance / 1000).toFixed(2)} km<br>
               Duration: ${Math.floor(activity.moving_time / 60)} minutes<br>
@@ -146,11 +149,18 @@ import Layout from '../layouts/Layout.astro';
           }
 
           // Add a marker at the start point
+          const activityDate = new Date(activity.start_date_local).toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
+          });
+
           L.marker([activity.start_latlng[0], activity.start_latlng[1]]).addTo(map)
             .bindPopup(`
-              <b>My Most Recent Run</b><br>
-              <small>Click the map to explore or <a href="/projects/strava-api">view all runs →</a></small>
-            `)
+              <b>Most recent run</b><br>
+              Date: ${activityDate}<br>
+              Distance: ${(activity.distance / 1000).toFixed(2)} km<br>
+              Duration: ${Math.floor(activity.moving_time / 60)} minutes<br>`)
             .openPopup();
         }
       })
@@ -193,4 +203,55 @@ import Layout from '../layouts/Layout.astro';
       return points;
     }
   </script>
+
+  <style>
+    .header-container {
+      display: none;
+    }
+
+    .profile-image {
+      display: none;
+    }
+
+    .profile-image-desktop {
+      width: 300px;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .content-container {
+      display: flex;
+      gap: 20px;
+      margin: 30px 0;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 768px) {
+      .header-container {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .header-container h1 {
+        margin: 0;
+      }
+
+      .profile-image {
+        display: block;
+        width: 60px;
+        height: 60px;
+        object-fit: cover;
+        border-radius: 8px;
+        flex-shrink: 0;
+      }
+
+      .profile-image-desktop {
+        display: none;
+      }
+    }
+  </style>
 </Layout>
