@@ -14,7 +14,6 @@ import Layout from '../layouts/Layout.astro';
   <div style="font-size: 13px; color: #666; display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 16px;">
     <span><span style="display:inline-block;width:10px;height:10px;background:#3b82f6;margin-right:5px;vertical-align:middle;border-radius:1px;"></span>Visited</span>
     <span><span style="display:inline-block;width:10px;height:10px;background:#fbbf24;margin-right:5px;vertical-align:middle;border-radius:1px;"></span>Currently showing</span>
-    <span><span style="display:inline-block;width:10px;height:10px;background:#f97316;margin-right:5px;vertical-align:middle;border-radius:1px;"></span>Your vote</span>
   </div>
 
   <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 28px;">
@@ -24,13 +23,6 @@ import Layout from '../layouts/Layout.astro';
     <span id="country-counter" style="font-size: 13px; color: #999;"></span>
     <button onclick="showFullMap()" style="background: none; border: 1px solid #ccc; padding: 4px 10px; cursor: pointer; font-size: 12px; border-radius: 2px; color: #666; margin-left: auto;">Full map</button>
   </div>
-
-  <hr>
-
-  <h2>Where should I go next?</h2>
-  <p style="font-size: 13px; color: #999; margin-top: -8px; margin-bottom: 16px; font-style: italic;">Click any unvisited country on the map to vote.</p>
-  <div id="vote-board" style="margin-top: 12px;"></div>
-  <p id="vote-note" style="font-size: 12px; color: #bbb; margin-top: 16px;"></p>
 
   <hr>
 
@@ -45,7 +37,6 @@ import Layout from '../layouts/Layout.astro';
       '682', '792', '784', '840', '586',
     ]);
 
-    // Ordered list for the arrow tour
     const TOUR = [
       { code: '818', name: 'Egypt' },
       { code: '504', name: 'Morocco' },
@@ -122,53 +113,6 @@ import Layout from '../layouts/Layout.astro';
       'guf': 'French Guiana',
     };
 
-    const VOTES_KEY = 'znmbrk_votes_v1';
-    const MY_VOTE_KEY = 'znmbrk_myvote_v1';
-
-    function getVotes() {
-      try { return JSON.parse(localStorage.getItem(VOTES_KEY) || '{}'); } catch { return {}; }
-    }
-    function getMyVote() { return localStorage.getItem(MY_VOTE_KEY) || null; }
-    function castVote(code) {
-      const votes = getVotes(), prev = getMyVote();
-      if (prev === code) {
-        votes[code] = Math.max(0, (votes[code] || 1) - 1);
-        localStorage.removeItem(MY_VOTE_KEY);
-      } else {
-        if (prev) votes[prev] = Math.max(0, (votes[prev] || 1) - 1);
-        votes[code] = (votes[code] || 0) + 1;
-        localStorage.setItem(MY_VOTE_KEY, code);
-      }
-      localStorage.setItem(VOTES_KEY, JSON.stringify(votes));
-    }
-
-    function renderBoard() {
-      const votes = getVotes(), myVote = getMyVote();
-      const board = document.getElementById('vote-board');
-      const entries = Object.entries(votes).filter(([, v]) => v > 0).sort(([, a], [, b]) => b - a).slice(0, 8);
-      if (!entries.length) {
-        board.innerHTML = '<p style="color:#888;font-size:14px;">No votes yet — click a country on the map to cast yours.</p>';
-        document.getElementById('vote-note').textContent = '';
-        return;
-      }
-      const max = entries[0][1];
-      board.innerHTML = entries.map(([code, n], i) => {
-        const name = NAMES[code] || code;
-        const mine = code === myVote;
-        const w = Math.round((n / max) * 100);
-        return `<div style="margin-bottom:14px;">
-          <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px;">
-            <span>${i + 1}. ${name}${mine ? ' <span style="font-size:11px;color:#f97316;">(your vote)</span>' : ''}</span>
-            <span style="color:#999;">${n} vote${n !== 1 ? 's' : ''}</span>
-          </div>
-          <div style="background:#ececec;height:3px;border-radius:2px;overflow:hidden;">
-            <div style="background:${mine ? '#f97316' : '#3b82f6'};height:3px;width:${w}%;transition:width .4s;"></div>
-          </div>
-        </div>`;
-      }).join('');
-      document.getElementById('vote-note').textContent = 'Votes are stored in your browser. Click your pick again to remove it.';
-    }
-
     function loadScript(src) {
       return new Promise((res, rej) => {
         const s = document.createElement('script');
@@ -177,8 +121,6 @@ import Layout from '../layouts/Layout.astro';
       });
     }
 
-    renderBoard();
-
     // Map state
     let mapGroup, pathGen, features, paths, W, H, activeCode = null;
     let gufPath = null;
@@ -186,7 +128,6 @@ import Layout from '../layouts/Layout.astro';
     function fill(d) {
       const c = String(d.id);
       if (VISITED.has(c)) return c === activeCode ? '#fbbf24' : '#3b82f6';
-      if (getMyVote() === c) return '#f97316';
       return '#c8d0da';
     }
 
@@ -277,28 +218,20 @@ import Layout from '../layouts/Layout.astro';
         .attr('fill', fill)
         .attr('stroke', '#fff')
         .attr('stroke-width', 0.5)
-        .style('cursor', d => VISITED.has(String(d.id)) ? 'default' : 'pointer')
+        .style('cursor', 'default')
         .on('mousemove', function (event, d) {
           const c = String(d.id);
           const name = NAMES[c];
           if (!name) { tip.style.display = 'none'; return; }
-          const suffix = VISITED.has(c) ? ' ✓' : getMyVote() === c ? ' ★' : '';
+          const suffix = VISITED.has(c) ? ' ✓' : '';
           tip.textContent = name + suffix;
           tip.style.display = 'block';
           tip.style.left = (event.clientX + 14) + 'px';
           tip.style.top = (event.clientY - 34) + 'px';
         })
-        .on('mouseleave', () => { tip.style.display = 'none'; })
-        .on('click', function (_, d) {
-          const c = String(d.id);
-          if (VISITED.has(c)) return;
-          if (!NAMES[c]) return;
-          castVote(c);
-          paths.attr('fill', fill);
-          renderBoard();
-        });
+        .on('mouseleave', () => { tip.style.display = 'none'; });
 
-      // French Guiana overlay (shares France's code 250 but is not visited)
+      // French Guiana overlay (shares France's code 250 in world-atlas)
       const frenchGuiana = {
         type: 'Feature',
         geometry: {
@@ -315,22 +248,17 @@ import Layout from '../layouts/Layout.astro';
       gufPath = mapGroup.append('path')
         .datum(frenchGuiana)
         .attr('d', pathGen)
-        .attr('fill', () => getMyVote() === 'guf' ? '#f97316' : '#c8d0da')
+        .attr('fill', '#c8d0da')
         .attr('stroke', '#fff')
         .attr('stroke-width', 0.5)
-        .style('cursor', 'pointer')
+        .style('cursor', 'default')
         .on('mousemove', function (event) {
-          tip.textContent = 'French Guiana' + (getMyVote() === 'guf' ? ' ★' : '');
+          tip.textContent = 'French Guiana';
           tip.style.display = 'block';
           tip.style.left = (event.clientX + 14) + 'px';
           tip.style.top = (event.clientY - 34) + 'px';
         })
-        .on('mouseleave', () => { tip.style.display = 'none'; })
-        .on('click', function () {
-          castVote('guf');
-          gufPath.attr('fill', getMyVote() === 'guf' ? '#f97316' : '#c8d0da');
-          renderBoard();
-        });
+        .on('mouseleave', () => { tip.style.display = 'none'; });
 
       // Double-click anywhere on map to reset to full map view
       svg.on('dblclick', function () { window.showFullMap(); });
