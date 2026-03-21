@@ -1,0 +1,347 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Travelling">
+  <h1>Travelling</h1>
+  <p>26 countries visited. Most recent: China. It's fun not to think about B2B SaaS sometimes.</p>
+
+  <div style="position: relative; margin: 24px 0 10px;">
+    <div id="world-map" style="width: 100%; height: 420px; background: #e8eef4; overflow: hidden;"></div>
+    <div id="map-tip" style="position: fixed; background: white; border: 1px solid #ccc; padding: 4px 10px; font-size: 13px; display: none; pointer-events: none; z-index: 99; white-space: nowrap;"></div>
+  </div>
+
+  <div style="font-size: 13px; color: #666; display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 16px;">
+    <span><span style="display:inline-block;width:10px;height:10px;background:#3b82f6;margin-right:5px;vertical-align:middle;border-radius:1px;"></span>Visited</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#fbbf24;margin-right:5px;vertical-align:middle;border-radius:1px;"></span>Currently showing</span>
+    <span><span style="display:inline-block;width:10px;height:10px;background:#f97316;margin-right:5px;vertical-align:middle;border-radius:1px;"></span>Your vote</span>
+  </div>
+
+  <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 28px;">
+    <button id="prev-btn" onclick="stepCountry(-1)" style="background: none; border: 1px solid #ccc; padding: 4px 12px; cursor: pointer; font-size: 16px; border-radius: 2px;">←</button>
+    <span id="country-label" style="font-size: 14px;"></span>
+    <button id="next-btn" onclick="stepCountry(1)" style="background: none; border: 1px solid #ccc; padding: 4px 12px; cursor: pointer; font-size: 16px; border-radius: 2px;">→</button>
+    <span id="country-counter" style="font-size: 13px; color: #999;"></span>
+    <button onclick="showFullMap()" style="background: none; border: 1px solid #ccc; padding: 4px 10px; cursor: pointer; font-size: 12px; border-radius: 2px; color: #666; margin-left: auto;">Full map</button>
+  </div>
+
+  <hr>
+
+  <h2>Where should I go next?</h2>
+  <p style="font-size: 13px; color: #999; margin-top: -8px; margin-bottom: 16px; font-style: italic;">Click any unvisited country on the map to vote.</p>
+  <div id="vote-board" style="margin-top: 12px;"></div>
+  <p id="vote-note" style="font-size: 12px; color: #bbb; margin-top: 16px;"></p>
+
+  <hr>
+
+  <p><a href="/">← Back to home</a></p>
+
+  <script is:inline>
+  (function () {
+    const VISITED = new Set([
+      '818', '504', '156', '344', '458', '702',
+      '040', '056', '208', '246', '250', '276', '300', '372', '380',
+      '492', '528', '807', '724', '756', '826',
+      '682', '792', '784', '840', '586',
+    ]);
+
+    // Ordered list for the arrow tour
+    const TOUR = [
+      { code: '818', name: 'Egypt' },
+      { code: '504', name: 'Morocco' },
+      { code: '156', name: 'China' },
+      { code: '344', name: 'Hong Kong' },
+      { code: '458', name: 'Malaysia' },
+      { code: '702', name: 'Singapore' },
+      { code: '040', name: 'Austria' },
+      { code: '056', name: 'Belgium' },
+      { code: '208', name: 'Denmark' },
+      { code: '246', name: 'Finland' },
+      { code: '250', name: 'France' },
+      { code: '276', name: 'Germany' },
+      { code: '300', name: 'Greece' },
+      { code: '372', name: 'Ireland' },
+      { code: '380', name: 'Italy' },
+      { code: '492', name: 'Monaco' },
+      { code: '528', name: 'Netherlands' },
+      { code: '807', name: 'North Macedonia' },
+      { code: '724', name: 'Spain' },
+      { code: '756', name: 'Switzerland' },
+      { code: '826', name: 'United Kingdom' },
+      { code: '682', name: 'Saudi Arabia' },
+      { code: '792', name: 'Turkey' },
+      { code: '784', name: 'UAE' },
+      { code: '840', name: 'United States' },
+      { code: '586', name: 'Pakistan' },
+    ];
+
+    const NAMES = {
+      '004':'Afghanistan','008':'Albania','012':'Algeria','020':'Andorra','024':'Angola',
+      '028':'Antigua and Barbuda','032':'Argentina','036':'Australia','040':'Austria',
+      '031':'Azerbaijan','044':'Bahamas','048':'Bahrain','050':'Bangladesh','052':'Barbados',
+      '112':'Belarus','056':'Belgium','084':'Belize','204':'Benin','064':'Bhutan',
+      '068':'Bolivia','070':'Bosnia and Herzegovina','072':'Botswana','076':'Brazil',
+      '096':'Brunei','100':'Bulgaria','854':'Burkina Faso','108':'Burundi',
+      '116':'Cambodia','120':'Cameroon','124':'Canada','132':'Cape Verde',
+      '140':'Central African Republic','144':'Sri Lanka','148':'Chad','152':'Chile',
+      '156':'China','170':'Colombia','174':'Comoros','178':'Republic of Congo',
+      '180':'DR Congo','188':'Costa Rica','191':'Croatia','192':'Cuba','196':'Cyprus',
+      '203':'Czech Republic','208':'Denmark','262':'Djibouti','212':'Dominica',
+      '214':'Dominican Republic','218':'Ecuador','818':'Egypt','222':'El Salvador',
+      '226':'Equatorial Guinea','232':'Eritrea','233':'Estonia','748':'Eswatini',
+      '231':'Ethiopia','246':'Finland','250':'France','266':'Gabon','270':'Gambia',
+      '268':'Georgia','276':'Germany','288':'Ghana','300':'Greece','308':'Grenada',
+      '320':'Guatemala','324':'Guinea','624':'Guinea-Bissau','328':'Guyana',
+      '332':'Haiti','340':'Honduras','344':'Hong Kong','348':'Hungary','356':'India',
+      '360':'Indonesia','364':'Iran','368':'Iraq','372':'Ireland','376':'Israel',
+      '380':'Italy','388':'Jamaica','392':'Japan','400':'Jordan','398':'Kazakhstan',
+      '404':'Kenya','296':'Kiribati','408':'North Korea','410':'South Korea',
+      '414':'Kuwait','417':'Kyrgyzstan','418':'Laos','422':'Lebanon','426':'Lesotho',
+      '430':'Liberia','434':'Libya','438':'Liechtenstein','440':'Lithuania',
+      '442':'Luxembourg','450':'Madagascar','454':'Malawi','458':'Malaysia',
+      '462':'Maldives','466':'Mali','470':'Malta','584':'Marshall Islands',
+      '478':'Mauritania','480':'Mauritius','484':'Mexico','583':'Micronesia',
+      '498':'Moldova','492':'Monaco','496':'Mongolia','499':'Montenegro',
+      '504':'Morocco','508':'Mozambique','516':'Namibia','520':'Nauru','524':'Nepal',
+      '528':'Netherlands','554':'New Zealand','558':'Nicaragua','562':'Niger',
+      '566':'Nigeria','578':'Norway','807':'North Macedonia','512':'Oman',
+      '586':'Pakistan','585':'Palau','275':'Palestine','591':'Panama',
+      '598':'Papua New Guinea','600':'Paraguay','604':'Peru','608':'Philippines',
+      '616':'Poland','620':'Portugal','634':'Qatar','642':'Romania','643':'Russia',
+      '646':'Rwanda','682':'Saudi Arabia','686':'Senegal','688':'Serbia',
+      '694':'Sierra Leone','703':'Slovakia','705':'Slovenia','706':'Somalia',
+      '710':'South Africa','728':'South Sudan','724':'Spain','702':'Singapore',
+      '729':'Sudan','740':'Suriname','752':'Sweden','756':'Switzerland','760':'Syria',
+      '762':'Tajikistan','834':'Tanzania','764':'Thailand','626':'Timor-Leste',
+      '768':'Togo','776':'Tonga','780':'Trinidad and Tobago','788':'Tunisia',
+      '792':'Turkey','795':'Turkmenistan','798':'Tuvalu','800':'Uganda',
+      '804':'Ukraine','784':'UAE','826':'United Kingdom','840':'United States',
+      '858':'Uruguay','860':'Uzbekistan','548':'Vanuatu','862':'Venezuela',
+      '704':'Vietnam','887':'Yemen','894':'Zambia','716':'Zimbabwe',
+      '158':'Taiwan','732':'Western Sahara','304':'Greenland',
+      'guf': 'French Guiana',
+    };
+
+    const VOTES_KEY = 'znmbrk_votes_v1';
+    const MY_VOTE_KEY = 'znmbrk_myvote_v1';
+
+    function getVotes() {
+      try { return JSON.parse(localStorage.getItem(VOTES_KEY) || '{}'); } catch { return {}; }
+    }
+    function getMyVote() { return localStorage.getItem(MY_VOTE_KEY) || null; }
+    function castVote(code) {
+      const votes = getVotes(), prev = getMyVote();
+      if (prev === code) {
+        votes[code] = Math.max(0, (votes[code] || 1) - 1);
+        localStorage.removeItem(MY_VOTE_KEY);
+      } else {
+        if (prev) votes[prev] = Math.max(0, (votes[prev] || 1) - 1);
+        votes[code] = (votes[code] || 0) + 1;
+        localStorage.setItem(MY_VOTE_KEY, code);
+      }
+      localStorage.setItem(VOTES_KEY, JSON.stringify(votes));
+    }
+
+    function renderBoard() {
+      const votes = getVotes(), myVote = getMyVote();
+      const board = document.getElementById('vote-board');
+      const entries = Object.entries(votes).filter(([, v]) => v > 0).sort(([, a], [, b]) => b - a).slice(0, 8);
+      if (!entries.length) {
+        board.innerHTML = '<p style="color:#888;font-size:14px;">No votes yet — click a country on the map to cast yours.</p>';
+        document.getElementById('vote-note').textContent = '';
+        return;
+      }
+      const max = entries[0][1];
+      board.innerHTML = entries.map(([code, n], i) => {
+        const name = NAMES[code] || code;
+        const mine = code === myVote;
+        const w = Math.round((n / max) * 100);
+        return `<div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px;">
+            <span>${i + 1}. ${name}${mine ? ' <span style="font-size:11px;color:#f97316;">(your vote)</span>' : ''}</span>
+            <span style="color:#999;">${n} vote${n !== 1 ? 's' : ''}</span>
+          </div>
+          <div style="background:#ececec;height:3px;border-radius:2px;overflow:hidden;">
+            <div style="background:${mine ? '#f97316' : '#3b82f6'};height:3px;width:${w}%;transition:width .4s;"></div>
+          </div>
+        </div>`;
+      }).join('');
+      document.getElementById('vote-note').textContent = 'Votes are stored in your browser. Click your pick again to remove it.';
+    }
+
+    function loadScript(src) {
+      return new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = src; s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+    }
+
+    renderBoard();
+
+    // Map state
+    let mapGroup, pathGen, features, paths, W, H, activeCode = null;
+    let gufPath = null;
+
+    function fill(d) {
+      const c = String(d.id);
+      if (VISITED.has(c)) return c === activeCode ? '#fbbf24' : '#3b82f6';
+      if (getMyVote() === c) return '#f97316';
+      return '#c8d0da';
+    }
+
+    function zoomToCode(code) {
+      const feature = features.find(f => String(f.id) === code);
+      if (!feature) return;
+      const [[x0, y0], [x1, y1]] = pathGen.bounds(feature);
+      const dx = x1 - x0 || 10, dy = y1 - y0 || 10;
+      const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+      const scale = Math.min(16, 0.8 / Math.max(dx / W, dy / H));
+      const tx = W / 2 - scale * cx;
+      const ty = H / 2 - scale * cy;
+      mapGroup.transition().duration(650)
+        .attr('transform', `translate(${tx},${ty}) scale(${scale})`);
+      paths.attr('stroke-width', 0.5 / scale);
+      if (gufPath) gufPath.attr('stroke-width', 0.5 / scale);
+    }
+
+    function resetZoom() {
+      mapGroup.transition().duration(500).attr('transform', 'translate(0,0) scale(1)');
+      paths.attr('stroke-width', 0.5);
+      if (gufPath) gufPath.attr('stroke-width', 0.5);
+    }
+
+    window.showFullMap = function () {
+      activeCode = null;
+      resetZoom();
+      document.getElementById('country-label').textContent = '';
+      document.getElementById('country-counter').textContent = '';
+      if (paths) paths.attr('fill', fill);
+    };
+
+    window.stepCountry = function (dir) {
+      const idx = TOUR.findIndex(t => t.code === activeCode);
+      const next = (idx + dir + TOUR.length) % TOUR.length;
+      const entry = TOUR[next];
+      activeCode = entry.code;
+      document.getElementById('country-label').textContent = entry.name;
+      document.getElementById('country-counter').textContent = `${next + 1} / ${TOUR.length}`;
+      if (paths) paths.attr('fill', fill);
+      zoomToCode(entry.code);
+    };
+
+    window.addEventListener('load', function () {
+      Promise.all([
+        loadScript('https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js'),
+        loadScript('https://cdnjs.cloudflare.com/ajax/libs/topojson/3.0.2/topojson.min.js'),
+      ])
+        .then(() => fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json'))
+        .then(r => r.json())
+        .then(world => initMap(world))
+        .catch(() => {
+          document.getElementById('world-map').innerHTML =
+            '<p style="padding:20px;color:#888;">Map could not be loaded.</p>';
+        });
+    });
+
+    function initMap(world) {
+      const el = document.getElementById('world-map');
+      W = el.offsetWidth;
+      H = 420;
+
+      const svg = d3.select('#world-map').append('svg')
+        .attr('width', W).attr('height', H).style('display', 'block');
+
+      svg.append('rect').attr('width', W).attr('height', H).attr('fill', '#e8eef4');
+
+      const proj = d3.geoNaturalEarth1().scale(W / 6.3).translate([W / 2, H / 2]);
+      pathGen = d3.geoPath().projection(proj);
+
+      svg.append('path')
+        .datum(d3.geoGraticule()())
+        .attr('d', pathGen)
+        .attr('fill', 'none')
+        .attr('stroke', '#d0d8e0')
+        .attr('stroke-width', 0.3);
+
+      mapGroup = svg.append('g');
+
+      const tip = document.getElementById('map-tip');
+      features = topojson.feature(world, world.objects.countries).features;
+
+      paths = mapGroup.selectAll('.c')
+        .data(features)
+        .join('path')
+        .attr('class', 'c')
+        .attr('d', pathGen)
+        .attr('fill', fill)
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 0.5)
+        .style('cursor', d => VISITED.has(String(d.id)) ? 'default' : 'pointer')
+        .on('mousemove', function (event, d) {
+          const c = String(d.id);
+          const name = NAMES[c];
+          if (!name) { tip.style.display = 'none'; return; }
+          const suffix = VISITED.has(c) ? ' ✓' : getMyVote() === c ? ' ★' : '';
+          tip.textContent = name + suffix;
+          tip.style.display = 'block';
+          tip.style.left = (event.clientX + 14) + 'px';
+          tip.style.top = (event.clientY - 34) + 'px';
+        })
+        .on('mouseleave', () => { tip.style.display = 'none'; })
+        .on('click', function (_, d) {
+          const c = String(d.id);
+          if (VISITED.has(c)) return;
+          if (!NAMES[c]) return;
+          castVote(c);
+          paths.attr('fill', fill);
+          renderBoard();
+        });
+
+      // French Guiana overlay (shares France's code 250 but is not visited)
+      const frenchGuiana = {
+        type: 'Feature',
+        geometry: {
+          type: 'Polygon',
+          coordinates: [[
+            [-51.657797, 4.156232], [-52.249338, 3.241094], [-52.556425, 2.504705],
+            [-52.939657, 2.124858], [-53.418465, 2.053389], [-53.554839, 2.334897],
+            [-53.778521, 2.376703], [-54.088063, 2.105557], [-54.524754, 5.821897],
+            [-54.087697, 5.981190], [-53.077363, 5.887435], [-52.879707, 5.756548],
+            [-52.310585, 5.456749], [-51.820136, 4.565768], [-51.657797, 4.156232]
+          ]]
+        }
+      };
+      gufPath = mapGroup.append('path')
+        .datum(frenchGuiana)
+        .attr('d', pathGen)
+        .attr('fill', () => getMyVote() === 'guf' ? '#f97316' : '#c8d0da')
+        .attr('stroke', '#fff')
+        .attr('stroke-width', 0.5)
+        .style('cursor', 'pointer')
+        .on('mousemove', function (event) {
+          tip.textContent = 'French Guiana' + (getMyVote() === 'guf' ? ' ★' : '');
+          tip.style.display = 'block';
+          tip.style.left = (event.clientX + 14) + 'px';
+          tip.style.top = (event.clientY - 34) + 'px';
+        })
+        .on('mouseleave', () => { tip.style.display = 'none'; })
+        .on('click', function () {
+          castVote('guf');
+          gufPath.attr('fill', getMyVote() === 'guf' ? '#f97316' : '#c8d0da');
+          renderBoard();
+        });
+
+      // Double-click anywhere on map to reset to full map view
+      svg.on('dblclick', function () { window.showFullMap(); });
+
+      // Auto-start tour at first country
+      activeCode = TOUR[0].code;
+      document.getElementById('country-label').textContent = TOUR[0].name;
+      document.getElementById('country-counter').textContent = `1 / ${TOUR.length}`;
+      paths.attr('fill', fill);
+      zoomToCode(TOUR[0].code);
+    }
+  })();
+  </script>
+</Layout>
