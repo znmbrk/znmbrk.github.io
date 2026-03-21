@@ -263,12 +263,7 @@ import Layout from '../layouts/Layout.astro';
       // Double-click anywhere on map to reset to full map view
       svg.on('dblclick', function () { window.showFullMap(); });
 
-      // Auto-start tour at first country
-      activeCode = TOUR[0].code;
-      document.getElementById('country-label').textContent = TOUR[0].name;
-      document.getElementById('country-counter').textContent = `1 / ${TOUR.length}`;
       paths.attr('fill', fill);
-      zoomToCode(TOUR[0].code);
     }
   })();
   </script>
