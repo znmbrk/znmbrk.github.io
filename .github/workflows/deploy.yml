@@ -4,6 +4,9 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+  schedule:
+    # Rebuild daily at 06:00 UTC so Strava run data stays fresh.
+    - cron: '0 6 * * *'
 
 permissions:
   contents: read
@@ -26,6 +29,10 @@ jobs:
           path: .
           node-version: 18
           package-manager: npm@latest
+        env:
+          STRAVA_CLIENT_ID: ${{ secrets.STRAVA_CLIENT_ID }}
+          STRAVA_CLIENT_SECRET: ${{ secrets.STRAVA_CLIENT_SECRET }}
+          STRAVA_REFRESH_TOKEN: ${{ secrets.STRAVA_REFRESH_TOKEN }}
 
   deploy:
     needs: build

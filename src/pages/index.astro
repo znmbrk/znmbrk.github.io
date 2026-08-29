@@ -1,8 +1,13 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { getStravaRuns } from '../lib/strava.js';
+
+// Fetched at build time — credentials never reach the browser.
+const runs = await getStravaRuns(1);
 ---
 
 <Layout title="Zain Mobarik">
+  <script type="application/json" id="strava-data" set:html={JSON.stringify(runs)} is:inline></script>
   <div class="header-container">
     <h1>Zain Mobarik</h1>
     <img src="/face card.png" alt="Zain Mobarik hiking" class="profile-image" />
@@ -90,84 +95,62 @@ import Layout from '../layouts/Layout.astro';
     }
 
     function loadStravaData(map) {
-      console.log('Loading Strava data...');
+      // Data is baked into the page at build time (see src/lib/strava.js).
+      const dataEl = document.getElementById('strava-data');
+      activities = dataEl ? JSON.parse(dataEl.textContent || '[]') : [];
+      console.log('Activities loaded:', activities.length);
 
-      fetch("https://www.strava.com/oauth/token", {
-        method: "POST",
-        headers: {
-          "Accept": "application/json, text/plain, */*",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          client_id: "88503",
-          client_secret: "fcbcf53e9cd8bb3d0387e04b93b6a784923b901e",
-          refresh_token: "e239e8706ab7995e2048a877cf10909214db6d78",
-          grant_type: "refresh_token"
-        })
-      })
-      .then(res => res.json())
-      .then(tokenData => {
-        console.log('Token refresh successful');
-        return fetch(`https://www.strava.com/api/v3/athlete/activities?access_token=${tokenData.access_token}&per_page=1`);
-      })
-      .then(res => res.json())
-      .then(data => {
-        console.log('Activities loaded:', data.length);
-        activities = data;
-
-        if (activities.length > 0) {
-          // Clear the loading marker
-          map.eachLayer(function(layer) {
-            if (layer instanceof L.Marker) {
-              map.removeLayer(layer);
-            }
-          });
-
-          const activity = activities[0];
-
-          if (activity.map && activity.map.summary_polyline) {
-            const coords = decodePolyline(activity.map.summary_polyline);
-
-            L.polyline(coords, {
-              color: 'blue',
-              weight: 4,
-              opacity: 0.7
-            }).addTo(map).bindPopup(`
-              <b>Most recent run</b><br>
-              ${activity.name}<br>
-              Distance: ${(activity.distance / 1000).toFixed(2)} km<br>
-              Duration: ${Math.floor(activity.moving_time / 60)} minutes<br>
-              <small><a href="/projects/strava-api">Click here to view all my runs →</a></small>
-            `);
-          }
-
-          // Center on the activity
-          if (activity.start_latlng) {
-            map.setView([activity.start_latlng[0], activity.start_latlng[1]], 13);
-          }
-
-          // Add a marker at the start point
-          const activityDate = new Date(activity.start_date_local).toLocaleDateString('en-GB', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
-          });
-
-          L.marker([activity.start_latlng[0], activity.start_latlng[1]]).addTo(map)
-            .bindPopup(`
-              <b>Most recent run</b><br>
-              Date: ${activityDate}<br>
-              Distance: ${(activity.distance / 1000).toFixed(2)} km<br>
-              Duration: ${Math.floor(activity.moving_time / 60)} minutes<br>`)
-            .openPopup();
-        }
-      })
-      .catch(error => {
-        console.error('Error loading Strava data:', error);
+      if (activities.length === 0) {
         L.marker([52.38199, -1.561976]).addTo(map)
-          .bindPopup('Error loading Strava data. Check console for details.')
+          .bindPopup('No recent runs to show.')
           .openPopup();
+        return;
+      }
+
+      // Clear the loading marker
+      map.eachLayer(function(layer) {
+        if (layer instanceof L.Marker) {
+          map.removeLayer(layer);
+        }
       });
+
+      const activity = activities[0];
+
+      if (activity.summary_polyline) {
+        const coords = decodePolyline(activity.summary_polyline);
+
+        L.polyline(coords, {
+          color: 'blue',
+          weight: 4,
+          opacity: 0.7
+        }).addTo(map).bindPopup(`
+          <b>Most recent run</b><br>
+          ${activity.name}<br>
+          Distance: ${(activity.distance / 1000).toFixed(2)} km<br>
+          Duration: ${Math.floor(activity.moving_time / 60)} minutes<br>
+          <small><a href="/projects/strava-api">Click here to view all my runs →</a></small>
+        `);
+      }
+
+      // Center on the activity
+      if (activity.start_latlng) {
+        map.setView([activity.start_latlng[0], activity.start_latlng[1]], 13);
+      }
+
+      // Add a marker at the start point
+      const activityDate = new Date(activity.start_date_local).toLocaleDateString('en-GB', {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+
+      L.marker([activity.start_latlng[0], activity.start_latlng[1]]).addTo(map)
+        .bindPopup(`
+          <b>Most recent run</b><br>
+          Date: ${activityDate}<br>
+          Distance: ${(activity.distance / 1000).toFixed(2)} km<br>
+          Duration: ${Math.floor(activity.moving_time / 60)} minutes<br>`)
+        .openPopup();
     }
 
     // Simplified polyline decoder
