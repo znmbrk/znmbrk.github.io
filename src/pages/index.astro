@@ -1,32 +1,16 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getStravaRuns } from '../lib/strava.js';
-
-// Fetched at build time — credentials never reach the browser.
-const runs = await getStravaRuns(1);
 ---
 
 <Layout title="Zain Mobarik">
-  <script type="application/json" id="strava-data" set:html={JSON.stringify(runs)} is:inline></script>
   <div class="header-container">
-    <h1>Zain Mobarik</h1>
     <img src="/face card.png" alt="Zain Mobarik hiking" class="profile-image" />
+    <h1>zain</h1>
   </div>
 
   <p>> currently working as founder's associate and in applied ai at incident.io.</p>
 
   <p>> recently left the corporate world to experience the fast pace and magic of a Series B startup.</p>
-
-  <div class="content-container">
-    <img src="/face card.png" alt="Zain Mobarik hiking" class="profile-image-desktop" />
-
-    <div style="flex: 1; min-width: 300px;">
-      <a href="/projects/strava-api" style="display: block; text-decoration: none;">
-        <div id="map" style="height: 300px; width: 100%; border: 1px solid #ccc; border-radius: 8px; cursor: pointer; position: relative;"></div>
-        <p style="margin-top: 10px; text-align: center; font-size: 14px; color: #666;">🏃 View all runs →</p>
-      </a>
-    </div>
-  </div>
 
   <h2>things i like</h2>
 
@@ -46,193 +30,24 @@ const runs = await getStravaRuns(1);
     <a href="/contact">📧 Contact</a>
   </div>
 
-  <script is:inline>
-    console.log('Script is running!');
-
-    // Wait for page to load, then load Leaflet and initialize map
-    window.addEventListener('load', function() {
-      console.log('Page loaded, starting Leaflet setup...');
-
-      // Load Leaflet CSS
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = 'https://unpkg.com/leaflet@1.8.0/dist/leaflet.css';
-      document.head.appendChild(link);
-
-      // Load Leaflet JS
-      const script = document.createElement('script');
-      script.src = 'https://unpkg.com/leaflet@1.8.0/dist/leaflet.js';
-      script.onload = function() {
-        console.log('Leaflet loaded successfully');
-        initializeMap();
-      };
-      script.onerror = function() {
-        console.error('Failed to load Leaflet');
-        document.getElementById('map').innerHTML = '<div style="padding: 20px; text-align: center; background: #f0f0f0;">Map loading failed. Please check your internet connection.</div>';
-      };
-      document.head.appendChild(script);
-    });
-
-    // Global variables
-    let globalMap;
-    let activities = [];
-
-    function initializeMap() {
-      console.log('Initializing map...');
-      globalMap = L.map('map').setView([52.38199, -1.561976], 13);
-
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      }).addTo(globalMap);
-
-      // Add a test marker
-      L.marker([52.38199, -1.561976]).addTo(globalMap)
-        .bindPopup('Loading your Strava data...')
-        .openPopup();
-
-      // Now try to load Strava data
-      loadStravaData(globalMap);
-    }
-
-    function loadStravaData(map) {
-      // Data is baked into the page at build time (see src/lib/strava.js).
-      const dataEl = document.getElementById('strava-data');
-      activities = dataEl ? JSON.parse(dataEl.textContent || '[]') : [];
-      console.log('Activities loaded:', activities.length);
-
-      if (activities.length === 0) {
-        L.marker([52.38199, -1.561976]).addTo(map)
-          .bindPopup('No recent runs to show.')
-          .openPopup();
-        return;
-      }
-
-      // Clear the loading marker
-      map.eachLayer(function(layer) {
-        if (layer instanceof L.Marker) {
-          map.removeLayer(layer);
-        }
-      });
-
-      const activity = activities[0];
-
-      if (activity.summary_polyline) {
-        const coords = decodePolyline(activity.summary_polyline);
-
-        L.polyline(coords, {
-          color: 'blue',
-          weight: 4,
-          opacity: 0.7
-        }).addTo(map).bindPopup(`
-          <b>Most recent run</b><br>
-          ${activity.name}<br>
-          Distance: ${(activity.distance / 1000).toFixed(2)} km<br>
-          Duration: ${Math.floor(activity.moving_time / 60)} minutes<br>
-          <small><a href="/projects/strava-api">Click here to view all my runs →</a></small>
-        `);
-      }
-
-      // Center on the activity
-      if (activity.start_latlng) {
-        map.setView([activity.start_latlng[0], activity.start_latlng[1]], 13);
-      }
-
-      // Add a marker at the start point
-      const activityDate = new Date(activity.start_date_local).toLocaleDateString('en-GB', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric'
-      });
-
-      L.marker([activity.start_latlng[0], activity.start_latlng[1]]).addTo(map)
-        .bindPopup(`
-          <b>Most recent run</b><br>
-          Date: ${activityDate}<br>
-          Distance: ${(activity.distance / 1000).toFixed(2)} km<br>
-          Duration: ${Math.floor(activity.moving_time / 60)} minutes<br>`)
-        .openPopup();
-    }
-
-    // Simplified polyline decoder
-    function decodePolyline(encoded) {
-      var points = [];
-      var index = 0, len = encoded.length;
-      var lat = 0, lng = 0;
-
-      while (index < len) {
-        var b, shift = 0, result = 0;
-        do {
-          b = encoded.charCodeAt(index++) - 63;
-          result |= (b & 0x1f) << shift;
-          shift += 5;
-        } while (b >= 0x20);
-        var dlat = ((result & 1) ? ~(result >> 1) : (result >> 1));
-        lat += dlat;
-
-        shift = 0;
-        result = 0;
-        do {
-          b = encoded.charCodeAt(index++) - 63;
-          result |= (b & 0x1f) << shift;
-          shift += 5;
-        } while (b >= 0x20);
-        var dlng = ((result & 1) ? ~(result >> 1) : (result >> 1));
-        lng += dlng;
-
-        points.push([lat * 1e-5, lng * 1e-5]);
-      }
-      return points;
-    }
-  </script>
-
   <style>
     .header-container {
-      display: none;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .header-container h1 {
+      margin: 0;
     }
 
     .profile-image {
-      display: none;
-    }
-
-    .profile-image-desktop {
-      width: 300px;
-      height: 300px;
+      width: 56px;
+      height: 56px;
       object-fit: cover;
-      border-radius: 8px;
-    }
-
-    .content-container {
-      display: flex;
-      gap: 20px;
-      margin: 30px 0;
-      flex-wrap: wrap;
-      align-items: flex-start;
-    }
-
-    @media (max-width: 768px) {
-      .header-container {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 20px;
-      }
-
-      .header-container h1 {
-        margin: 0;
-      }
-
-      .profile-image {
-        display: block;
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 8px;
-        flex-shrink: 0;
-      }
-
-      .profile-image-desktop {
-        display: none;
-      }
+      border-radius: 50%;
+      flex-shrink: 0;
     }
   </style>
 </Layout>

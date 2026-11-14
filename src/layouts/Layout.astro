@@ -6,6 +6,14 @@ interface Props {
 }
 
 const { title } = Astro.props as Props;
+
+// The back link points one level up: /bookshelf/x -> /bookshelf, /blog -> home.
+const segments = Astro.url.pathname.split('/').filter(Boolean);
+const back = segments.length === 0
+  ? null
+  : segments.length === 1
+    ? { href: '/', label: 'home' }
+    : { href: '/' + segments.slice(0, -1).join('/'), label: segments[segments.length - 2] };
 ---
 
 <!DOCTYPE html>
@@ -29,12 +37,13 @@ const { title } = Astro.props as Props;
     </script>
   </head>
   <body>
-    <slot />
+    <main>
+      <slot />
+    </main>
 
-    <footer style="margin-top: 60px; padding-top: 40px; border-top: 1px solid #ddd; text-align: left; color: #666;">
-      <p style="font-size: 14px;">
-        <a href="https://cal.com/zain-mobarik-4tdyos/website" target="_blank" style="color: #0000EE; text-decoration: underline;">Say hi</a>.
-      </p>
+    <footer class="site-footer">
+      {back ? <a href={back.href}>← {back.label}</a> : <span></span>}
+      <a href="https://cal.com/zain-mobarik-4tdyos/website" target="_blank"><em>say hi</em></a>
     </footer>
   </body>
 </html>
