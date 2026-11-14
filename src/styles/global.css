@@ -8,6 +8,24 @@ body {
   max-width: 800px;
   margin: 0 auto;
   padding: 40px 20px;
+  box-sizing: border-box;
+  /* Short pages keep the footer at the bottom of the screen. */
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+}
+
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 60px;
+  padding-top: 16px;
+  border-top: 1px solid #ddd;
+  font-size: 14px;
 }
 
 a {
@@ -24,6 +42,10 @@ a:hover {
 }
 
 /* Better typography hierarchy */
+h1, h2, h3, h4 {
+  text-transform: lowercase;
+}
+
 h1 {
   font-size: 28px;
   margin: 0 0 25px 0;
