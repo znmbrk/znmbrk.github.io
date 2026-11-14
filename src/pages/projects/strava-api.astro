@@ -36,11 +36,9 @@ const runs = await getStravaRuns(10);
 
 
   <script is:inline>
-    console.log('Script is running!');
 
     // Wait for page to load, then load Leaflet and initialize map
     window.addEventListener('load', function() {
-      console.log('Page loaded, starting Leaflet setup...');
 
       // Load Leaflet CSS
       const link = document.createElement('link');
@@ -52,7 +50,6 @@ const runs = await getStravaRuns(10);
       const script = document.createElement('script');
       script.src = 'https://unpkg.com/leaflet@1.8.0/dist/leaflet.js';
       script.onload = function() {
-        console.log('Leaflet loaded successfully');
         initializeMap();
       };
       script.onerror = function() {
@@ -70,7 +67,6 @@ const runs = await getStravaRuns(10);
 
     function initializeMap() {
       // First create a basic map to test
-      console.log('Initializing map...');
       globalMap = L.map('map').setView([52.38199, -1.561976], 13);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -148,7 +144,6 @@ const runs = await getStravaRuns(10);
       // Data is baked into the page at build time (see src/lib/strava.js).
       const dataEl = document.getElementById('strava-data');
       activities = dataEl ? JSON.parse(dataEl.textContent || '[]') : [];
-      console.log('Activities loaded:', activities.length);
 
       if (activities.length === 0) {
         L.marker([52.38199, -1.561976]).addTo(map)
